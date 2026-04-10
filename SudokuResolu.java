@@ -1,12 +1,12 @@
-public class SudokuSolver {
+public class SudokuResolu {
     private int[][] grille = new int[9][9];
     
     public void chargerGrilleFichier(String nomFichier) throws IOException, IllegalArgumentException {
-        GrilleDepuisFichier.charger(this.grille, nomFichier);
+        LectureGrilleFichier.charger(this.grille, nomFichier);
     }
     
     public void chargerGrilleManuelle() {
-        GrilleDepuisSaisiesManuelles.saisir(this.grille);
+        SaisieGrilleConsole.saisir(this.grille);
     }
     
     public void afficherGrille(String titre) {
@@ -41,7 +41,7 @@ public class SudokuSolver {
     
     private boolean backtracking(int ligne, int col) {
         if (ligne == 9) {
-            return true; // Grille complète
+            return true;
         }
         
         if (col == 9) {
@@ -58,22 +58,19 @@ public class SudokuSolver {
                 if (backtracking(ligne, col + 1)) {
                     return true;
                 }
-                grille[ligne][col] = 0; // Backtrack
+                grille[ligne][col] = 0;
             }
         }
         return false;
     }
     
     private boolean estValide(int ligne, int col, int num) {
-        // Ligne
         for (int j = 0; j < 9; j++) {
             if (grille[ligne][j] == num) return false;
         }
-        // Colonne
         for (int i = 0; i < 9; i++) {
             if (grille[i][col] == num) return false;
         }
-        // Bloc 3x3
         int debutLigne = (ligne / 3) * 3;
         int debutCol = (col / 3) * 3;
         for (int i = 0; i < 3; i++) {
@@ -84,7 +81,6 @@ public class SudokuSolver {
         return true;
     }
     
-    // Accesseurs pour validation
     public int[][] getGrille() { return grille; }
     public void setGrille(int[][] g) { this.grille = g; }
 }
