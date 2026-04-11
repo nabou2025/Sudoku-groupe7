@@ -1,3 +1,4 @@
+import java.io.IOException;
 public class SudokuResolu {
     private int[][] grille = new int[9][9];
     
