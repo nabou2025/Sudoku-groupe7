@@ -1,87 +1,119 @@
 import java.io.IOException;
+
 public class SudokuResolu {
-    private int[][] grille = new int[9][9];
-    
-    public void chargerGrilleFichier(String nomFichier) throws IOException, IllegalArgumentException {
+
+    public static final int TAILLE = 9;
+
+    public static final int BLOC = 3;
+
+    private int[][] grille = new int[TAILLE][TAILLE];
+
+
+    public int[][] getGrille() { return grille; }
+    public void setGrille(int[][] g) { this.grille = g; }
+    public int getValeur(int i, int j) { return grille[i][j]; }
+    public void setValeur(int i, int j, int val) { grille[i][j] = val; }
+
+
+    public void chargerGrilleFichier(String nomFichier)
+            throws IOException, IllegalArgumentException {
         LectureGrilleFichier.charger(this.grille, nomFichier);
     }
-    
+
+
     public void chargerGrilleManuelle() {
         SaisieGrilleConsole.saisir(this.grille);
     }
-    
+
+
     public void afficherGrille(String titre) {
         System.out.println("\n=== " + titre + " ===");
-        System.out.print("  ");
-        for (int i = 0; i < 9; i++) {
-            System.out.print((i % 3 == 0 ? "┌───" : "───"));
-        }
-        System.out.println("┐");
-        
-        for (int i = 0; i < 9; i++) {
-            System.out.print((i % 3 == 0 ? "│ " : "  "));
-            for (int j = 0; j < 9; j++) {
+        System.out.println("╔═══════╦═══════╦═══════╦═══════════╗");
+
+        for (int i = 0; i < TAILLE; i++) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("║");
+
+            for (int j = 0; j < TAILLE; j++) {
                 int val = grille[i][j];
-                System.out.print((val == 0 ? "  " : val + " ") + (j % 3 == 2 ? "│" : ""));
-            }
-            System.out.println();
-            
-            if (i % 3 == 2) {
-                System.out.print("  ");
-                for (int j = 0; j < 9; j++) {
-                    System.out.print("───" + (j % 3 == 2 ? "┤" : ""));
+                String cellule = (val == 0) ? " " : String.valueOf(val);
+                sb.append(" ").append(cellule).append(" ");
+
+                if (j == 2 || j == 5) {
+                    sb.append("║");
+                } else if (j < 8) {
+                    sb.append("│");
                 }
-                System.out.println("┘");
+            }
+            sb.append("║");
+            System.out.println(sb.toString());
+
+            if (i == 2 || i == 5) {
+                System.out.println("╠═══════╬═══════╬═══════╬═══════════╣");
+            } else if (i < 8) {
+                System.out.println("├───────┼───────┼───────┼───────────┤");
             }
         }
+        System.out.println("╚═══════╩═══════╩═══════╩═══════════╝");
     }
-    
-    public boolean resoudre() {
-        return backtracking(0, 0);
-    }
-    
-    private boolean backtracking(int ligne, int col) {
-        if (ligne == 9) {
-            return true;
-        }
-        
-        if (col == 9) {
-            return backtracking(ligne + 1, 0);
-        }
-        
-        if (grille[ligne][col] != 0) {
-            return backtracking(ligne, col + 1);
-        }
-        
-        for (int num = 1; num <= 9; num++) {
-            if (estValide(ligne, col, num)) {
-                grille[ligne][col] = num;
-                if (backtracking(ligne, col + 1)) {
-                    return true;
-                }
-                grille[ligne][col] = 0;
-            }
-        }
-        return false;
-    }
-    
-    private boolean estValide(int ligne, int col, int num) {
-        for (int j = 0; j < 9; j++) {
+
+    public boolean estValide(int ligne, int col, int num) {
+        // Vérification ligne
+        for (int j = 0; j < TAILLE; j++) {
             if (grille[ligne][j] == num) return false;
         }
-        for (int i = 0; i < 9; i++) {
+        // Vérification colonne
+        for (int i = 0; i < TAILLE; i++) {
             if (grille[i][col] == num) return false;
         }
-        int debutLigne = (ligne / 3) * 3;
-        int debutCol = (col / 3) * 3;
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
+        // Vérification bloc 3x3
+        int debutLigne = (ligne / BLOC) * BLOC;
+        int debutCol   = (col   / BLOC) * BLOC;
+        for (int i = 0; i < BLOC; i++) {
+            for (int j = 0; j < BLOC; j++) {
                 if (grille[debutLigne + i][debutCol + j] == num) return false;
             }
         }
         return true;
     }
-    
-    public int[][] getGrille() { return grille; }
-    public void setGrille(int[][] g) { this.grille = g; }
+// ─── Résolution ────────────────────────────────────────────────────
+
+    /**
+     * Lance la résolution de la grille par backtracking.
+     *
+     * @return true si une solution a été trouvée, false sinon
+     */
+    public boolean resoudre() {
+        return backtracking(0, 0);
+    }
+
+    /**
+     * Algorithme de backtracking récursif.
+     * Parcourt la grille de gauche à droite, de haut en bas.
+     *
+     * @param ligne ligne courante (0-8)
+     * @param col   colonne courante (0-8)
+     * @return true si la grille est résoluble depuis cette position
+     */
+    private boolean backtracking(int ligne, int col) {
+        // Toutes les lignes traitées → solution trouvée
+        if (ligne == TAILLE) return true;
+
+        // Fin de ligne → on passe à la suivante
+        if (col == TAILLE) return backtracking(ligne + 1, 0);
+
+        // Case déjà remplie → on avance
+        if (grille[ligne][col] != 0) return backtracking(ligne, col + 1);
+
+        // On essaie les chiffres 1 à 9
+        for (int num = 1; num <= TAILLE; num++) {
+            if (estValide(ligne, col, num)) {
+                grille[ligne][col] = num;
+                if (backtracking(ligne, col + 1)) return true;
+                grille[ligne][col] = 0; // backtrack
+            }
+        }
+        return false;
+    }
 }
+
