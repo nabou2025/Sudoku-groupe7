@@ -1,6 +1,9 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+/**
+ * Point d'entrée du solveur de Sudoku.
+ */
 public class SudokuMain {
 
     public static void main(String[] args) {
